@@ -12,8 +12,9 @@ Our design is capable of reaching an fmax around 113MHz when targetting a ZCU106
 
 ### Building the Verilator testbench
 Building the testbench requires:
+- A Linux or MacOS setup. Alternatively, a Windows setup with WSL2 or Docker installed (See "Building with Docker" section).
 - A C++20 compiler
-- A recent version of Verilator
+- A recent version of Verilator (Install via `brew` on MacOS or your package manager on Linux)
 
 Navigate to sigmoid_rtl/src/cpp_testbench and run the following commands
 ```sh
@@ -21,10 +22,10 @@ cmake -B build
 cmake --build build
 ```
 
-The executable will be located in `./build/sigmoid`. If your version of Verilator is outdated (as happens on some distros, namely Ubuntu/Debian), you might need to build Verilator from source. For more info on how to do this, you can read the [Verilator docs](https://verilator.org/guide/latest/install.html) or our Github Actions build workflows in the `.github` folder. Alternatively, you can build the project with Docker instead (documented below)
+The executable will be located in `./build/sigmoid`. If your version of Verilator is outdated (mainly a problem on Ubuntu/Debian), you might need to build Verilator from source. For more info, you can read the [Verilator docs](https://verilator.org/guide/latest/install.html) or our [Github Actions build workflows](./.github/workflows/build_verilator.yml). Alternatively, you can build the project with Docker instead (See "Building with Docker" section)
 
-## Building with Docker
-If you're on Windows, MacOS, or a Linux distribution without the necessary packages, you can build the project using [Docker](https://www.docker.com/get-started/), which will create a small Virtual Machine (VM) with all the tools you need.
+### Building with Docker
+If you're on Windows, or a Linux distribution without the necessary packages, you can build the project using [Docker](https://www.docker.com/get-started/), which will create a small Virtual Machine (VM) with all the tools you need.
 
 - Download [Docker Desktop](https://docs.docker.com/get-started/get-docker/) and open it.
 - Download our Dockerfile. Open a terminal and navigate to the Dockerfile's location.
