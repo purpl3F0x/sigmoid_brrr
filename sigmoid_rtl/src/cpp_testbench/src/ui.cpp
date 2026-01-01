@@ -11,7 +11,9 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
 
-// For accessing private fields of pipeline stage
+// For accessing pipeline stages and their private fields
+#include "sigmoid_t___024root.h"
+#define GET_STAGE(n) top->rootp->sigmoid_pipelined__DOT__stage##n##_curr
 #define GET_FIELD(stage, field) stage.__PVT__##field
 #define CHECKBOX(label, value) ImGui::Checkbox(label, (bool*)&value)
 
@@ -79,7 +81,7 @@ void UI::drawPipeline(Sigmoid* top) {
 }
 
 void UI::drawStage0(Sigmoid* top) {
-    auto& stage = top->stage0_out;
+    auto& stage = GET_STAGE(0);
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Stage 0");
 
     const auto& valid = GET_FIELD(stage, valid);
@@ -93,7 +95,7 @@ void UI::drawStage0(Sigmoid* top) {
 }
 
 void UI::drawStage1(Sigmoid* top) {
-    auto& stage = top->stage1_out;
+    auto& stage = GET_STAGE(1);
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Stage 1");
 
     const auto& valid = GET_FIELD(stage, valid);
@@ -119,7 +121,7 @@ void UI::drawStage1(Sigmoid* top) {
 }
 
 void UI::drawStage2(Sigmoid* top) {
-    auto& stage = top->stage2_out;
+    auto& stage = GET_STAGE(2);
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Stage 2");
 
     const auto& valid = GET_FIELD(stage, valid);
@@ -145,7 +147,7 @@ void UI::drawStage2(Sigmoid* top) {
 }
 
 void UI::drawStage3(Sigmoid* top) {
-    auto& stage = top->stage3_out;
+    auto& stage = GET_STAGE(3);
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Stage 3");
 
     const auto& valid = GET_FIELD(stage, valid);
@@ -165,7 +167,7 @@ void UI::drawStage3(Sigmoid* top) {
 }
 
 void UI::drawStage4(Sigmoid* top) {
-    auto& stage = top->stage4_out;
+    auto& stage = GET_STAGE(4);
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Stage 4");
 
     const auto& valid = GET_FIELD(stage, valid);

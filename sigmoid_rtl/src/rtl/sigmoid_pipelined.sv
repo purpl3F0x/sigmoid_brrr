@@ -71,16 +71,9 @@ module sigmoid_pipelined (
 
     output wire valid_out,
     output wire [15:0] data_out
-
-`ifdef VERILATOR
-    ,
-    output pipeline_stage0_t stage0_out,
-    output pipeline_stage1_t stage1_out,
-    output pipeline_stage2_t stage2_out,
-    output pipeline_stage3_t stage3_out,
-    output pipeline_stage4_t stage4_out
-`endif
 );
+    /* verilator public_flat_on */
+
     // Current and next pipeline stage data
     // Next fields are set in combinational logic, curr fields in sequential logic
     pipeline_stage0_t stage0_curr, stage0_next;
@@ -88,6 +81,8 @@ module sigmoid_pipelined (
     pipeline_stage2_t stage2_curr, stage2_next;
     pipeline_stage3_t stage3_curr, stage3_next;
     pipeline_stage4_t stage4_curr, stage4_next;
+
+    /* verilator public_off */
 
     // Absolute value and sign of the input
     wire [15:0] data_in_abs = {1'b0, data_in[14:0]};
@@ -337,13 +332,4 @@ module sigmoid_pipelined (
     // Final pipeline output
     assign valid_out = stage4_curr.valid;
     assign data_out = stage4_curr.result;
-
-    // Expose pipeline stage outputs so that we can access them from the Verilator testbench
-`ifdef VERILATOR
-    assign stage0_out = stage0_curr;
-    assign stage1_out = stage1_curr;
-    assign stage2_out = stage2_curr;
-    assign stage3_out = stage3_curr;
-    assign stage4_out = stage4_curr;
-`endif
 endmodule
