@@ -28,13 +28,13 @@ module test_pipelined_outputs();
     always #5 clk = ~clk;
 
     initial begin
-        input_file = $fopen("/home/gponiris/gponiris/rtl_testbench_inputs.txt", "r");
+        input_file = $fopen("/your/path/here/rtl_testbench_inputs.txt", "r");
         if (input_file == 0) begin
             $display("Unable to open input file");
             $finish(1);
         end
 
-        output_file = $fopen("/home/gponiris/gponiris/rtl_testbench_outputs.txt", "w");
+        output_file = $fopen("/your/path/here/rtl_testbench_outputs.txt", "w");
         if (output_file == 0) begin
             $display("Unable to open output file");
             $finish(1);
@@ -60,7 +60,7 @@ module test_pipelined_outputs();
                 #50;
                 
                 // Write to output file
-                $fwrite(output_file, "%h\n", data_out);
+                $fwrite(output_file, "%h %h\n", data_in, data_out);
             end
         end
 

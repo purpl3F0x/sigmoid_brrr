@@ -26,12 +26,8 @@ module test_sigmoid();
     always #1 clk = ~clk;
 
     initial begin
-        // Dump all signals into vcd file
-        $dumpfile("/home/gponiris/gponiris/sigmoid_sim.vcd");
-        $dumpvars(0, test_sigmoid);
-
         // Test cases. Each line is 1 test case in the format (input, expected output)
-        file = $fopen("/home/gponiris/sigmoid_test_cases.txt", "r");
+        file = $fopen("/your/path/here/sample_test_cases.txt", "r");
         if (file == 0) begin
             $display("Unable to open test case file");
             $finish(1);
