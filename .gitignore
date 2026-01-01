@@ -1,0 +1,83 @@
+# npm files and folders
+**/node_modules/
+
+# App distribution folder
+dist/
+front-end/dist/
+
+# Visual Studio files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# CLion Files
+.idea/
+cmake-build-*/
+
+Debug/
+Release/
+ReleaseWithClangCL/
+Enabled/
+Disabled/
+build/
+
+.vs/
+.vscode/*.log
+
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+vsprojects/packages
+
+.Trash-1000/
+
+# Linux files
+*.o
+*.dep
+*.mcd
+
+# FastBuild and msfastbuild stuff
+*.bff
+*.fdb
+fb.bat
+
+# MacOS files
+.DS_store
+
+# Python files
+*.pyc
+
+# Imgui files
+imgui.ini
+
+# clangd cache
+.cache
+
+# Vivado project generated files
+*.log
+*.jou
+*.bak
+*.runs/
+*.swp
+*.xpr
+*.xrpt
+*.xml
+*_p.*
+*_a.*
+*_b.*
+*.bin
+*.bit
+*.cfg
+*.rpt
+*.tcl
+*.prj
