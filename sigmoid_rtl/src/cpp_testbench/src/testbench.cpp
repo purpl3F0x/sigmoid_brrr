@@ -76,14 +76,14 @@ void parseCmdlineArgs(Sigmoid* top, int argc, char** argv) {
         int testsRan = 0, testsFailed = 0;
 
         if (testCaseFilename.empty()) {
-            printf("Headless mode specified but no test case file was provided\n");
-            abort();
+            fmt::print("Headless mode specified but no test case file was provided\n");
+            std::abort();
         }
 
         std::ifstream inputFile(testCaseFilename);
         if (!inputFile.good() || !inputFile.is_open()) {
-            printf("Failed to open input file\n");
-            abort();
+            fmt::print("Failed to open input file\n");
+            std::abort();
         }
 
         while (!inputFile.eof()) {
