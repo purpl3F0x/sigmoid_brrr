@@ -4,7 +4,9 @@
 #include <cli_args/cli_args.hpp>
 #include <fstream>
 
+#include "helpers.hpp"
 #include "imgui_impl_sdl2.h"
+#include "sigmoid.hpp"
 #include "ui.hpp"
 
 void parseCmdlineArgs(Sigmoid* top, int argc, char** argv);
@@ -87,7 +89,7 @@ void parseCmdlineArgs(Sigmoid* top, int argc, char** argv) {
         }
 
         while (!inputFile.eof()) {
-            uint16_t input, expected;
+            u16 input, expected;
             inputFile >> std::hex >> input >> std::hex >> expected;
 
             top->data_in = input;

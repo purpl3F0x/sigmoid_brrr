@@ -4,9 +4,7 @@
 
 #include <utility>
 
-#include "sigmoid_t.h"
-
-using Sigmoid = sigmoid_t;
+#include "sigmoid.hpp"
 
 namespace UI {
     std::pair<SDL_Window*, SDL_GLContext> init();

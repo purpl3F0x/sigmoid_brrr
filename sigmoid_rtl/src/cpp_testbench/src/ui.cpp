@@ -12,7 +12,6 @@
 #include "imgui_impl_sdl2.h"
 
 // For accessing pipeline stages and their private fields
-#include "sigmoid_t___024root.h"
 #define GET_STAGE(n) top->rootp->sigmoid_pipelined__DOT__stage##n##_curr
 #define GET_FIELD(stage, field) stage.__PVT__##field
 #define CHECKBOX(label, value) ImGui::Checkbox(label, (bool*)&value)

@@ -60,7 +60,7 @@ module test_pipelined_outputs();
                 #50;
                 
                 // Write to output file
-                $fwrite(output_file, "%h %h\n", data_in, data_out);
+                $fwrite(output_file, "%h\n", data_out);
             end
         end
 
