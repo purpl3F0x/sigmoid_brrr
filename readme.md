@@ -5,7 +5,7 @@ This project explores various methods for approximating the sigmoid function, co
 ![Verilator video](notebooks/img/verilator_demo.webp)
 
 ### RTL Design Performance
-Our design is capable of reaching an fmax around 195MHz when targetting a ZCU106 board, with a total on-chip power usage of 0.656W (of which 0.592W is static device power usage).
+Our design is capable of reaching an fmax around 195MHz when targetting a ZCU106 board, with a total on-chip power usage of 0.656W (of which 0.592W is static device power usage) and 0.68% CLB LUT usage.
 ![RTL design power](notebooks/img/vivado_power.png)
 ![RTL design timing](notebooks/img/vivado_timing.png)
 ![Vivado elaborated design](notebooks/img/vivado_elaborated.png)

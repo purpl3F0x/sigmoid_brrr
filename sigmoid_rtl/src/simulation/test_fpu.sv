@@ -85,8 +85,10 @@ module test_fpu();
         end
     endgenerate
 
+    /* verilator public_flat_on */
     integer tests_ran = 0;
     integer failed_tests = 0;
+    /* verilator public_off */
 
     function void assert_eq(
         input [15:0] actual,

@@ -297,12 +297,10 @@ module sigmoid_pipelined (
     end
 
     // Stage 4: Calculate final polynomial value
-    logic [15:0] polynomial_sum_wire;
-
     bf16_add_single_cycle add3 (
         .op1(stage3_curr.add_a0_a1),
         .op2(stage3_curr.mul_a2_x2),
-        .result(polynomial_sum_wire),
+        .result(stage4_next.poly_result),
         .isResultValid(),
         .isReady()
     );
@@ -310,7 +308,6 @@ module sigmoid_pipelined (
     always_comb begin
         stage4_next.valid = stage3_curr.valid;
         stage4_next.is_negative = stage3_curr.is_negative;
-        stage4_next.poly_result = polynomial_sum_wire;
     end
 
     always @(posedge clk) begin
