@@ -16,8 +16,6 @@
 #define GET_FIELD(stage, field) stage.__PVT__##field
 #define CHECKBOX(label, value) ImGui::Checkbox(label, (bool*)&value)
 
-void stepCycles(Sigmoid* top, uint cycles);
-
 // Draw top-level module inputs (rst, data_in, valid_in) and outputs (data_out, valid_out)
 void UI::drawTopModule(Sigmoid* top) {
     ImGui::SetNextWindowSize(ImVec2(280, 200), ImGuiCond_FirstUseEver);
@@ -54,7 +52,7 @@ void UI::drawTopModule(Sigmoid* top) {
 }
 
 void UI::drawPipeline(Sigmoid* top) {
-    ImGui::SetNextWindowSize(ImVec2(720, 720), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(720, 800), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(600, 20), ImGuiCond_FirstUseEver);
     ImGui::Begin("Pipeline");
 
@@ -74,6 +72,9 @@ void UI::drawPipeline(Sigmoid* top) {
     ImGui::Separator();
 
     UI::drawStage4(top);
+    ImGui::Separator();
+
+    UI::drawStage5(top);
 
     ImGui::PopItemFlag();
     ImGui::End();
@@ -170,12 +171,28 @@ void UI::drawStage4(Sigmoid* top) {
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Stage 4");
 
     const auto& valid = GET_FIELD(stage, valid);
+    const auto& is_negative = GET_FIELD(stage, is_negative);
+    const auto& poly_result = GET_FIELD(stage, poly_result);
+
+    std::string poly_result_str = fmt::format("{:04X} ({:0.4f})", poly_result, bf16::toFloat(poly_result));
+
+    CHECKBOX("valid##4", valid);
+    CHECKBOX("is_negative##4", is_negative);
+
+    ImGui::InputText("poly_result##4", (char*)poly_result_str.c_str(), poly_result_str.size());
+}
+
+void UI::drawStage5(Sigmoid* top) {
+    auto& stage = GET_STAGE(5);
+    ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Stage 5");
+
+    const auto& valid = GET_FIELD(stage, valid);
     const auto& result = GET_FIELD(stage, result);
 
     std::string result_str = fmt::format("{:04X} ({:0.4f})", result, bf16::toFloat(result));
 
-    CHECKBOX("valid##4", valid);
-    ImGui::InputText("result##4", (char*)result_str.c_str(), result_str.size());
+    CHECKBOX("valid##5", valid);
+    ImGui::InputText("result##5", (char*)result_str.c_str(), result_str.size());
 }
 
 std::pair<SDL_Window*, SDL_GLContext> UI::init() {
@@ -222,7 +239,7 @@ std::pair<SDL_Window*, SDL_GLContext> UI::init() {
     float mainScale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
     SDL_WindowFlags windowFlags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window* window = SDL_CreateWindow(
-        "Crisp Viewer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (int)(1280 * mainScale), (int)(800 * mainScale), windowFlags
+        "Crisp Viewer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (int)(1920 * mainScale), (int)(1080 * mainScale), windowFlags
     );
 
     if (window == nullptr) {

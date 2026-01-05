@@ -60,6 +60,7 @@ set(RTL_SOURCE
     ${RTL_DIR}/polynomial_2nd_degree.sv ${RTL_DIR}/sigmoid.sv ${RTL_DIR}/sigmoid_pipelined.sv
 )
 
+# Verilate our sigmoid_pipelined module
 verilate(
     sigmoid
     PREFIX sigmoid_t

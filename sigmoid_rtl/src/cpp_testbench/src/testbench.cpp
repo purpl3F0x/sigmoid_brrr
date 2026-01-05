@@ -97,8 +97,8 @@ void parseCmdlineArgs(Sigmoid* top, int argc, char** argv) {
             top->rst = 0;
             testsRan++;
 
-            // Step for 5 cycles until the result is at the end of the pipeline, then compare with expected output
-            stepCycles(top, 5);
+            // Step until the result is at the end of the pipeline, then compare with expected output
+            stepCycles(top, PIPELINE_STAGES);
 
             if (top->data_out != expected) {
                 testsFailed++;

@@ -22,4 +22,5 @@ namespace UI {
     void drawStage2(Sigmoid* top);
     void drawStage3(Sigmoid* top);
     void drawStage4(Sigmoid* top);
+    void drawStage5(Sigmoid* top);
 }  // namespace UI

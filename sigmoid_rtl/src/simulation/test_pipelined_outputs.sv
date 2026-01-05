@@ -12,7 +12,11 @@ module test_pipelined_outputs();
     
     reg[15:0] data_in;
     wire[15:0] data_out;
-    
+
+    // Appropriately configured clock so that post-implementation simulation can keep up
+    localparam CLOCK_PERIOD = 6;
+    localparam CLOCK_HALF_PERIOD = CLOCK_PERIOD / 2;
+
     sigmoid_pipelined sig (
         .clk(clk),
         .rst(rst),
@@ -24,8 +28,7 @@ module test_pipelined_outputs();
     
     integer input_file, output_file, file_result;
 
-    // 100 MHz clock so that post-implementation simulation can keep up
-    always #5 clk = ~clk;
+    always #(CLOCK_HALF_PERIOD) clk = ~clk;
 
     initial begin
         input_file = $fopen("/your/path/here/rtl_testbench_inputs.txt", "r");
@@ -45,22 +48,27 @@ module test_pipelined_outputs();
         rst = 1;
         
         // Hold reset high for 5 cycles
-        #50;
+        #(5 * CLOCK_PERIOD);
         
         // Hold reset low, start pumping data
         rst = 0;
-        #50;
-        valid_in = 1;
+        #(5 * CLOCK_PERIOD);
 
         while (!$feof(input_file)) begin
             file_result = $fscanf(input_file, "%h\n", data_in);
 
             if (file_result == 1) begin
-                // Wait for 5 cycles so the result is ready
-                #50;
-                
+                valid_in = 1;
+
+                // Wait until the result is valid
+                wait(valid_out == 1);
+                #(CLOCK_HALF_PERIOD);
+
                 // Write to output file
                 $fwrite(output_file, "%h\n", data_out);
+
+                valid_in = 0;
+                wait(valid_out == 0);
             end
         end
 
