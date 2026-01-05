@@ -9,8 +9,8 @@ import lampFPU_pkg::*;
 // Stage 1: Calculate x + offset, pick polynomial coefficients
 // Stage 2: Calculate (x + offset) ^ 2 and a1 * (x + offset)
 // Stage 3: Calculate a2 * (x + offset) ^ 2 and a1 * (x + offset) = a0
-// Stage 4: Calculate final polynomial sum (add3)
-// Stage 5: Calculate flipped value (1 - sigmoid(|x|)), choose output based on sign
+// Stage 4: Calculate final polynomial sum
+// Stage 5: Calculate flipped value (1.0 - sigmoid(|x|)), choose output based on the input sign
 
 // During synthesis we want pipeline stage structs to be packed for better locality/area usage
 // During Verilator testing though we want them to not be packed, so that we can easily access pipeline state in C++ code
@@ -296,8 +296,7 @@ module sigmoid_pipelined (
         end
     end
 
-    // Stage 4: Calculate final polynomial sum
-
+    // Stage 4: Calculate final polynomial value
     logic [15:0] polynomial_sum_wire;
 
     bf16_add_single_cycle add3 (
@@ -311,7 +310,7 @@ module sigmoid_pipelined (
     always_comb begin
         stage4_next.valid = stage3_curr.valid;
         stage4_next.is_negative = stage3_curr.is_negative;
-        stage4_next.poly_result = polynomial_sum_wire; // Latch the result
+        stage4_next.poly_result = polynomial_sum_wire;
     end
 
     always @(posedge clk) begin
@@ -325,10 +324,9 @@ module sigmoid_pipelined (
         end
     end
 
-    // Stage 5: Calculate flipped value and select output
+    // Stage 5: Calculate 1.0 - polynomial value and select output based on the sign of the input
     logic [15:0] one_minus_polynomial_output;
 
-    // Use the registered result from Stage 4
     bf16_sub_single_cycle flip_poly (
         .op1(ONE),
         .op2(stage4_curr.poly_result),
@@ -339,7 +337,6 @@ module sigmoid_pipelined (
 
     always_comb begin
         stage5_next.valid = stage4_curr.valid;
-        // Check sign from Stage 4 register to decide
         stage5_next.result = (stage4_curr.is_negative == 0) ? stage4_curr.poly_result : one_minus_polynomial_output;
     end
 

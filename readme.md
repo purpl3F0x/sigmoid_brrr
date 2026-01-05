@@ -1,11 +1,11 @@
 # Hardware-friendly Approximations for the Sigmoid Function
 
-This project explores various methods for approximating the sigmoid function, commonly used in neural networks, with a focus on hardware-friendly implementations. Using our findings, we implement a 5-stage pipelined SystemVerilog design for calculating the function in bfloat16 precision, with a piecewise 2nd order polynomial approximation.
+This project explores various methods for approximating the sigmoid function, commonly used in neural networks, with a focus on hardware-friendly implementations. Using our findings, we implement a 6-stage pipelined SystemVerilog design for calculating the function in bfloat16 precision, with a piecewise 2nd order polynomial approximation.
 
 ![Verilator video](notebooks/img/verilator_demo.webp)
 
 ### RTL Design Performance
-Our design is capable of reaching an fmax around 113MHz when targetting a ZCU106 board, with a total on-chip power usage of 0.631W (of which 0.592W is static device power usage).
+Our design is capable of reaching an fmax around 195MHz when targetting a ZCU106 board, with a total on-chip power usage of 0.656W (of which 0.592W is static device power usage).
 ![RTL design power](notebooks/img/vivado_power.png)
 ![RTL design timing](notebooks/img/vivado_timing.png)
 ![Vivado elaborated design](notebooks/img/vivado_elaborated.png)
