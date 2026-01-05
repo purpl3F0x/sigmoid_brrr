@@ -9,7 +9,8 @@ import lampFPU_pkg::*;
 // Stage 1: Calculate x + offset, pick polynomial coefficients
 // Stage 2: Calculate (x + offset) ^ 2 and a1 * (x + offset)
 // Stage 3: Calculate a2 * (x + offset) ^ 2 and a1 * (x + offset) = a0
-// Stage 4: Calculate final sum and its flipped value (1 - sigmoid(|x|)), choose which one to output based on the sign of the input
+// Stage 4: Calculate final polynomial sum (add3)
+// Stage 5: Calculate flipped value (1 - sigmoid(|x|)), choose output based on sign
 
 // During synthesis we want pipeline stage structs to be packed for better locality/area usage
 // During Verilator testing though we want them to not be packed, so that we can easily access pipeline state in C++ code
@@ -52,8 +53,14 @@ typedef struct `PREFER_PACKED {
 
 typedef struct `PREFER_PACKED {
     logic valid;
-    logic [15:0] result;
+    logic is_negative;
+    logic [15:0] poly_result;
 } pipeline_stage4_t;
+
+typedef struct `PREFER_PACKED {
+    logic valid;
+    logic [15:0] result;
+} pipeline_stage5_t;
 
 // We approximate the sigmoid function as a second degree polynomial
 // f(x) = a2 * (x + offset)^2 + a1 * (x + offset) + a0
@@ -81,6 +88,7 @@ module sigmoid_pipelined (
     pipeline_stage2_t stage2_curr, stage2_next;
     pipeline_stage3_t stage3_curr, stage3_next;
     pipeline_stage4_t stage4_curr, stage4_next;
+    pipeline_stage5_t stage5_curr, stage5_next;
 
     /* verilator public_off */
 
@@ -96,10 +104,10 @@ module sigmoid_pipelined (
     logic [15:0] offset; // Offset to subtract from x in polynomial calculation
 
     // Signals to check whether |x| < less than 1, 2, ..., 6
-    localparam [15:0] cmp_values [5:0] = { SIX, FIVE, FOUR, THREE, TWO, ONE }; // Indices are reversed, so ONE is at index 0 and so on
+    localparam [15:0] cmp_values [5:0] = { SIX, FIVE, FOUR, THREE, TWO, ONE };  // Indices are reversed, so ONE is at index 0 and so on
     wire [5:0] less_than;
 
-    // Generate comparators    
+    // Generate comparators
     genvar i;
     generate
         for (i = 0; i < 6; i++) begin
@@ -161,12 +169,12 @@ module sigmoid_pipelined (
     end
 
     always @(posedge clk) begin
-        if (rst) begin 
+        if (rst) begin
             stage0_curr.valid <= 'd0;
             stage0_curr.is_negative <= 'd0;
             stage0_curr.x_abs <= 'd0;
         end
-        
+
         else begin
             stage0_curr <= stage0_next;
         end
@@ -192,7 +200,7 @@ module sigmoid_pipelined (
     end
 
     always @(posedge clk) begin
-        if (rst) begin 
+        if (rst) begin
             stage1_curr.valid <= 'd0;
             stage1_curr.is_negative <= 'd0;
             stage1_curr.x_offset <= 'd0;
@@ -200,7 +208,7 @@ module sigmoid_pipelined (
             stage1_curr.a1 <= 'd0;
             stage1_curr.a2 <= 'd0;
         end
-        
+
         else begin
             stage1_curr <= stage1_next;
         end
@@ -235,7 +243,7 @@ module sigmoid_pipelined (
     end
 
     always @(posedge clk) begin
-        if (rst) begin 
+        if (rst) begin
             stage2_curr.valid <= 'd0;
             stage2_curr.is_negative <= 'd0;
             stage2_curr.x_squared <= 'd0;
@@ -243,7 +251,7 @@ module sigmoid_pipelined (
             stage2_curr.a0 <= 'd0;
             stage2_curr.a2 <= 'd0;
         end
-        
+
         else begin
             stage2_curr <= stage2_next;
         end
@@ -276,60 +284,76 @@ module sigmoid_pipelined (
     end
 
     always @(posedge clk) begin
-        if (rst) begin 
+        if (rst) begin
             stage3_curr.valid <= 'd0;
             stage3_curr.is_negative <= 'd0;
             stage3_curr.mul_a2_x2 <= 'd0;
             stage3_curr.add_a0_a1 <= 'd0;
         end
-        
+
         else begin
             stage3_curr <= stage3_next;
         end
     end
 
-    // Stage 4: Calculate final sum and output
-    // We calculate sigmoid by taking the absolute value of the input and passing it to the polynomial
-    // Then for negative values, we can do sigmoid(x) = 1 - sigmoid(|x|)
-    logic [15:0] polynomial_output;
-    logic [15:0] one_minus_polynomial_output;
+    // Stage 4: Calculate final polynomial sum
 
-    // Computes final result
+    logic [15:0] polynomial_sum_wire;
+
     bf16_add_single_cycle add3 (
         .op1(stage3_curr.add_a0_a1),
         .op2(stage3_curr.mul_a2_x2),
-        .result(polynomial_output),
+        .result(polynomial_sum_wire),
         .isResultValid(),
         .isReady()
     );
 
-    // Compute inverse of polynomial
-    bf16_sub_single_cycle flip_poly (
-        .op1(ONE),
-        .op2(polynomial_output),
-        .result(one_minus_polynomial_output),
-        .isResultValid(),
-        .isReady()
-    );
-
-    // Pass through valid flag from stage 2 to stage 3, pick final result based on sign of input
     always_comb begin
         stage4_next.valid = stage3_curr.valid;
-        stage4_next.result = (stage3_curr.is_negative == 0) ? polynomial_output : one_minus_polynomial_output;
+        stage4_next.is_negative = stage3_curr.is_negative;
+        stage4_next.poly_result = polynomial_sum_wire; // Latch the result
     end
 
     always @(posedge clk) begin
-        if (rst) begin 
+        if (rst) begin
             stage4_curr.valid <= 'd0;
-            stage4_curr.result <= 'd0;
+            stage4_curr.is_negative <= 'd0;
+            stage4_curr.poly_result <= 'd0;
         end
-        
         else begin
             stage4_curr <= stage4_next;
         end
     end
 
+    // Stage 5: Calculate flipped value and select output
+    logic [15:0] one_minus_polynomial_output;
+
+    // Use the registered result from Stage 4
+    bf16_sub_single_cycle flip_poly (
+        .op1(ONE),
+        .op2(stage4_curr.poly_result),
+        .result(one_minus_polynomial_output),
+        .isResultValid(),
+        .isReady()
+    );
+
+    always_comb begin
+        stage5_next.valid = stage4_curr.valid;
+        // Check sign from Stage 4 register to decide
+        stage5_next.result = (stage4_curr.is_negative == 0) ? stage4_curr.poly_result : one_minus_polynomial_output;
+    end
+
+    always @(posedge clk) begin
+        if (rst) begin
+            stage5_curr.valid <= 'd0;
+            stage5_curr.result <= 'd0;
+        end
+        else begin
+            stage5_curr <= stage5_next;
+        end
+    end
+
     // Final pipeline output
-    assign valid_out = stage4_curr.valid;
-    assign data_out = stage4_curr.result;
+    assign valid_out = stage5_curr.valid;
+    assign data_out = stage5_curr.result;
 endmodule
