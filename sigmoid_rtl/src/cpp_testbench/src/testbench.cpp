@@ -110,7 +110,7 @@ void parseCmdlineArgs(Sigmoid* top, int argc, char** argv) {
 
         fmt::print("Tests ran:    {}\n", testsRan);
         fmt::print("Tests passed: {}\n", testsRan - testsFailed);
-        fmt::print("Test failed:  {}\n", testsFailed);
+        fmt::print("Tests failed: {}\n", testsFailed);
 
         // Exit with an error if we had failures
         std::exit(testsFailed != 0 ? -1 : 0);
