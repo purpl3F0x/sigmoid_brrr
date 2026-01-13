@@ -58,6 +58,7 @@ set(RTL_SOURCE
     ${RTL_DIR}/bf16/lampFPU_div_comb.sv ${RTL_DIR}/bf16/lampFPU_f2i_comb.sv ${RTL_DIR}/bf16/lampFPU_fractDiv_comb.sv
     ${RTL_DIR}/bf16/lampFPU_i2f_comb.sv ${RTL_DIR}/bf16/lampFPU_mul_comb.sv ${RTL_DIR}/single_cycle_fpu.sv
     ${RTL_DIR}/polynomial_2nd_degree.sv ${RTL_DIR}/sigmoid.sv ${RTL_DIR}/sigmoid_pipelined.sv
+    ${RTL_DIR}/silu_pipelined.sv
 )
 
 # Verilate our sigmoid_pipelined module
